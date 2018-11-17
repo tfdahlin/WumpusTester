@@ -188,6 +188,10 @@ def main():
         difficulty = sys.argv[2]
         if difficulty.lower() in ["easy", "medium", "hard"]:
             runTests(sys.argv[1], difficulty.lower())
+        elif difficulty.lower() == "all":
+            runTests(sys.argv[1], "easy")
+            runTests(sys.argv[1], "medium")
+            runTests(sys.argv[1], "hard")
         else:
             usage("'" + difficulty + "' is not a valid difficulty setting.")
     else:
@@ -244,60 +248,157 @@ def test(program, world):
         return False
 
 
+def legend():
+    print("Legend:")
+    print("e - empty space")
+    print("h - hole")
+    print("w - wumpus")
+    print("g - gold")
+    print("r - robot")
+    print()
+
 def runTests(program, difficulty):
     failures = 0
     if difficulty == "easy":
-        print("Running easy tests.")
+        print("Running easy tests.\n")
+        legend()
+        print("World 1:")
         world1 = World([
             ["e", "e", "e", "g"],
             ["e", "e", "e", "e"],
             ["e", "e", "e", "e"],
             ["e", "e", "e", "w"]
         ])
+        print(str(world1))
         if(test(program, world1)):
             pass
         else:
             failures += 1
+        print()
+        print("World 2:")
         world2 = World([
             ["e", "e", "e", "h"],
             ["e", "g", "e", "e"],
             ["e", "e", "e", "w"],
             ["e", "e", "e", "e"]
         ])
+        print(str(world2))
         if(test(program, world2)):
             pass
         else:
             failures += 1
+        print()
+        print("World 3:")
         world3 = World([
             ["h", "h", "e", "e"],
             ["e", "e", "e", "w"],
             ["e", "e", "g", "e"],
             ["e", "e", "e", "e"]
         ])
+        print(str(world3))
         if(test(program, world3)):
             pass
         else:
             failures += 1
         print()
     elif difficulty == "medium":
-        # TODO: Medium tests
-        print("Running medium tests.")
+        print("Running medium tests.\n")
+        legend()
+        world1 = World([
+            ["h", "h", "g", "h"],
+            ["h", "e", "e", "e"],
+            ["e", "e", "e", "e"],
+            ["e", "e", "e", "w"]
+        ])
+        print(str(world1))
+        if(test(program, world1)):
+            pass
+        else:
+            failures += 1
+        print()
+        print("World 2:")
+        world2 = World([
+            ["e", "e", "h", "w"],
+            ["e", "e", "e", "g"],
+            ["e", "e", "e", "e"],
+            ["e", "e", "h", "h"]
+        ])
+        print(str(world2))
+        if(test(program, world2)):
+            pass
+        else:
+            failures += 1
+        print()
+        print("World 3:")
+        world3 = World([
+            ["w", "e", "g", "e"],
+            ["e", "h", "e", "e"],
+            ["e", "e", "e", "e"],
+            ["e", "e", "e", "h"]
+        ])
+        print(str(world3))
+        if(test(program, world3)):
+            pass
+        else:
+            failures += 1
     elif difficulty == "hard":
         # TODO: Hard tests
-        print("Running hard tests.")
+        print("Running hard tests.\n")
+        legend()
+        world1 = World([
+            ["h", "h", "g", "e"],
+            ["h", "h", "e", "e"],
+            ["e", "h", "e", "e"],
+            ["e", "e", "w", "e"]
+        ])
+        print(str(world1))
+        if(test(program, world1)):
+            pass
+        else:
+            failures += 1
+        print()
+        print("World 2:")
+        world2 = World([
+            ["e", "h", "e", "h"],
+            ["e", "e", "g", "e"],
+            ["e", "e", "e", "h"],
+            ["e", "e", "e", "e"]
+        ])
+        print(str(world2))
+        if(test(program, world2)):
+            pass
+        else:
+            failures += 1
+        print()
+        print("World 3:")
+        world3 = World([
+            ["e", "e", "w", "g"],
+            ["e", "e", "h", "h"],
+            ["e", "e", "e", "h"],
+            ["e", "e", "e", "h"]
+        ])
+        print(str(world3))
+        if(test(program, world3)):
+            pass
+        else:
+            failures += 1
 
         # Uncomment this challenge if you dare.
         '''
+        print()
+        print("Hardest world:")
         evil = World([
             ["e", "e", "h", "g"],
             ["e", "e", "h", "w"],
             ["e", "e", "e", "e"],
             ["e", "e", "h", "h"]
         ])
+        print(str(evil))
         '''
     else:
         pass
     print("All tests completed with %d failures." % failures)
+    print("====================================")
 
 
 if __name__ == "__main__":
