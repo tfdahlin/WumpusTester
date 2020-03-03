@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-import subprocess, io, sys
+import subprocess, io, sys, argparse
 
 class Tile:
+    """State representation of a single tile in the Wumpus World."""
     def __init__(self, x, y, content):
         self.x = x
         self.y = y
@@ -16,6 +17,7 @@ class Tile:
         return self.visited
 
 class World:
+    """State representation of the Wumpus World."""
     def __init__(self, arr):
         self.grid = []
         for i in range(4):
@@ -169,34 +171,20 @@ class World:
                 if(self.grid[self.bot_y][self.bot_x-1].content == "w"):
                     self.grid[self.bot_y][self.bot_x-1].content = "e"
         
-
-def usage(usage_type = None):
-    print("Error: invalid usage.", end="")
-    if(usage_type != None):
-        print(" " + usage_type)
-    print()
-    print("Usage:")
-    print(sys.argv[0] + " <your_executable> <difficulty>")
-    print()
-    print("Difficulty is an optional argument to test against a set of prebuilt examples. Valid difficulty settings are \"easy\", \"medium\", and \"hard\".")
-
 def main():
-    argc = len(sys.argv)
-    if argc < 3:
-        usage("Too few arguments.")
-    elif argc == 3:
-        difficulty = sys.argv[2]
-        if difficulty.lower() in ["easy", "medium", "hard"]:
-            runTests(sys.argv[1], difficulty.lower())
-        elif difficulty.lower() == "all":
-            runTests(sys.argv[1], "easy")
-            runTests(sys.argv[1], "medium")
-            runTests(sys.argv[1], "hard")
-        else:
-            usage("'" + difficulty + "' is not a valid difficulty setting.")
-    else:
-        usage("Too many arguments.")
+    # Better command line argument parsing
+    parser = argparse.ArgumentParser(description='Test a user-developed application against Wumpus World puzzles.')
+    parser.add_argument('application', type=str, help='The application to test. This can be an executable or a python script.')
+    parser.add_argument('difficulty', type=str, help='The difficulty of the tests to run against. This can be "easy", "medium", "hard", or "all"', choices=['easy', 'medium', 'hard', 'all'])
+    parser.add_argument('--enable_hardest', help='Enable the hardest difficulty puzzle.', action='store_true')
+    args = parser.parse_args()
 
+    if args.difficulty in ['easy', 'medium', 'hard']:
+        runTests(args.application, args.difficulty, args.enable_hardest)
+    else:
+        runTests(args.application, 'easy')
+        runTests(args.application, 'medium')
+        runTests(args.application, 'hard', args.enable_hardest)
 
 def test(program, world):
     try:
@@ -249,6 +237,7 @@ def test(program, world):
 
 
 def legend():
+    """Print a legend for the puzzle output."""
     print("Legend:")
     print("e - empty space")
     print("h - hole")
@@ -257,12 +246,22 @@ def legend():
     print("r - robot")
     print()
 
-def runTests(program, difficulty):
+def runTests(program, difficulty, enable_hardest=False):
+    """Run the user-provided program against a test-suite of puzzles.
+
+    There are 3 puzzles at each difficulty level, as well as an optional
+    puzzle that is significantly harder to solve than the others.
+
+    Arguments:
+        program (str): The program to run and interact with.
+        difficulty (str): The difficulty level of tests to run.
+        enable_hardest (bool): Whether or not to test against the most difficult puzzle.
+    """
     failures = 0
     if difficulty == "easy":
         print("Running easy tests.\n")
         legend()
-        print("World 1:")
+        print("Easy world 1:")
         world1 = World([
             ["e", "e", "e", "g"],
             ["e", "e", "e", "e"],
@@ -270,12 +269,10 @@ def runTests(program, difficulty):
             ["e", "e", "e", "w"]
         ])
         print(str(world1))
-        if(test(program, world1)):
-            pass
-        else:
+        if not test(program, world1):
             failures += 1
         print()
-        print("World 2:")
+        print("Easy world 2:")
         world2 = World([
             ["e", "e", "e", "h"],
             ["e", "g", "e", "e"],
@@ -283,12 +280,10 @@ def runTests(program, difficulty):
             ["e", "e", "e", "e"]
         ])
         print(str(world2))
-        if(test(program, world2)):
-            pass
-        else:
+        if not test(program, world2):
             failures += 1
         print()
-        print("World 3:")
+        print("Easy world 3:")
         world3 = World([
             ["h", "h", "e", "e"],
             ["e", "e", "e", "w"],
@@ -296,9 +291,7 @@ def runTests(program, difficulty):
             ["e", "e", "e", "e"]
         ])
         print(str(world3))
-        if(test(program, world3)):
-            pass
-        else:
+        if not test(program, world3):
             failures += 1
         print()
     elif difficulty == "medium":
@@ -310,13 +303,12 @@ def runTests(program, difficulty):
             ["e", "e", "e", "e"],
             ["e", "e", "e", "w"]
         ])
+        print('Medium world 1:')
         print(str(world1))
-        if(test(program, world1)):
-            pass
-        else:
+        if not test(program, world1):
             failures += 1
         print()
-        print("World 2:")
+        print("Medium world 2:")
         world2 = World([
             ["e", "e", "h", "w"],
             ["e", "e", "e", "g"],
@@ -324,12 +316,10 @@ def runTests(program, difficulty):
             ["e", "e", "h", "h"]
         ])
         print(str(world2))
-        if(test(program, world2)):
-            pass
-        else:
+        if not test(program, world2):
             failures += 1
         print()
-        print("World 3:")
+        print("Medium world 3:")
         world3 = World([
             ["w", "e", "g", "e"],
             ["e", "h", "e", "e"],
@@ -337,12 +327,9 @@ def runTests(program, difficulty):
             ["e", "e", "e", "h"]
         ])
         print(str(world3))
-        if(test(program, world3)):
-            pass
-        else:
+        if not test(program, world3):
             failures += 1
     elif difficulty == "hard":
-        # TODO: Hard tests
         print("Running hard tests.\n")
         legend()
         world1 = World([
@@ -351,13 +338,12 @@ def runTests(program, difficulty):
             ["e", "h", "e", "e"],
             ["e", "e", "w", "e"]
         ])
+        print('Hard world 1:')
         print(str(world1))
-        if(test(program, world1)):
-            pass
-        else:
+        if not test(program, world1):
             failures += 1
         print()
-        print("World 2:")
+        print("Hard world 2:")
         world2 = World([
             ["e", "h", "e", "h"],
             ["e", "e", "g", "e"],
@@ -365,12 +351,10 @@ def runTests(program, difficulty):
             ["e", "e", "e", "e"]
         ])
         print(str(world2))
-        if(test(program, world2)):
-            pass
-        else:
+        if not test(program, world2):
             failures += 1
         print()
-        print("World 3:")
+        print("Hard world 3:")
         world3 = World([
             ["e", "e", "w", "g"],
             ["e", "e", "h", "h"],
@@ -378,13 +362,11 @@ def runTests(program, difficulty):
             ["e", "e", "e", "h"]
         ])
         print(str(world3))
-        if(test(program, world3)):
-            pass
-        else:
+        if not test(program, world3):
             failures += 1
-
-        # Uncomment this challenge if you dare.
-        '''
+    else:
+        pass
+    if enable_hardest:
         print()
         print("Hardest world:")
         evil = World([
@@ -394,10 +376,10 @@ def runTests(program, difficulty):
             ["e", "e", "h", "h"]
         ])
         print(str(evil))
-        '''
-    else:
-        pass
-    print("All tests completed with %d failures." % failures)
+        if(not test(program, evil)):
+            failures += 1
+
+    print(f'All tests completed with {failures} failures.')
     print("====================================")
 
 
